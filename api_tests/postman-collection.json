@@ -26,7 +26,13 @@
 					],
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{testApiKey}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{protocol}}://{{domain}}/{{basePath}}/blog/7GNQCz3dEPOCvuyfcHTWvA",
 							"protocol": "{{protocol}}",

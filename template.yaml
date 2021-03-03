@@ -1,0 +1,161 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  The tranmere web dynamic page stack
+
+Globals:
+  Function:
+    Timeout: 5
+    AutoPublishAlias: live
+
+Parameters:
+  Deployment:
+    Type: String
+    Default: Canary10Percent5Minutes
+  CFSPACE:
+    Type: String
+    Description: The contentful space
+  CFKEY:
+    Type: String
+    Description: The contentful key    
+  S3BucketName:
+    Type: String
+  OpenAPIFile:
+    Type: String
+    Default: openapi.yaml
+  EnvName:
+    Type: String
+    Default: sit1
+    Description: The name of the environment to deploy to
+    AllowedValues:
+      - local
+      - ci1      
+      - sit1
+      - pre1
+      - prod1
+
+Resources:     
+
+  RestApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Cors:
+        AllowOrigin: "'*'"
+      StageName: Prod
+      Auth:
+        ApiKeyRequired: true        
+      Name: DynamicPage
+      DefinitionBody:
+        Fn::Transform:
+          Name: AWS::Include
+          Parameters:
+            Location: 
+              Fn::Join:
+              - ''
+              - - s3://
+                - Ref: S3BucketName
+                - /
+                - Ref: OpenAPIFile
+
+  DynamicPage:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src
+      Handler: app.handler
+      Runtime: nodejs12.x
+      DeploymentPreference:
+        Type: !Ref Deployment
+        Alarms:
+          - !Ref AliasErrorMetricGreaterThanZeroAlarm
+          - !Ref LatestVersionErrorMetricGreaterThanZeroAlarm
+      Tracing: Active  
+      Environment:
+        Variables:
+          EnvironmentName: !Ref EnvName
+          CF_SPACE: !Ref 'CFSPACE'
+          CF_KEY: !Ref 'CFKEY'
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: TranmereWebAppsTable
+        - DynamoDBCrudPolicy:
+            TableName: TranmereWebPlayerSeasonSummaryTable
+        - DynamoDBCrudPolicy:
+            TableName: TranmereWebPlayerTable
+        - DynamoDBCrudPolicy:
+            TableName: TranmereWebMediaSyncTable
+      Events:
+        PageRequest:
+          Type: Api
+          Properties:
+            Path: /{pageName}/{classifier}
+            RestApiId: !Ref RestApi
+            Method: get
+
+  AliasErrorMetricGreaterThanZeroAlarm:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmDescription: Lambda Function Error > 0
+      AlarmActions:
+        - !ImportValue cloudwatch-notifications-prod-SlackSNSTopic
+      OKActions:
+        - !ImportValue cloudwatch-notifications-prod-SlackSNSTopic
+      InsufficientDataActions:
+        - !ImportValue cloudwatch-notifications-prod-SlackSNSTopic
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: Resource
+          Value: !Sub "${ DynamicPage}:live"
+        - Name: FunctionName
+          Value: !Ref DynamicPage
+      EvaluationPeriods: 2
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 60
+      Statistic: Sum
+      Threshold: 0
+  LatestVersionErrorMetricGreaterThanZeroAlarm:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmDescription: Lambda Function Error > 0
+      AlarmActions:
+        - !ImportValue cloudwatch-notifications-prod-SlackSNSTopic
+      OKActions:
+        - !ImportValue cloudwatch-notifications-prod-SlackSNSTopic
+      InsufficientDataActions:
+        - !ImportValue cloudwatch-notifications-prod-SlackSNSTopic
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: Resource
+          Value: !Ref DynamicPage.Version
+        - Name: FunctionName
+          Value: !Ref DynamicPage
+      EvaluationPeriods: 2
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 60
+      Statistic: Sum
+      Threshold: 0
+
+  # This shouldn't be necerssary, but API Gateway often seems to lack permission on the lambda when using swagger definitions
+  LambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties: 
+      Action: lambda:InvokeFunction
+      SourceArn: 
+        Fn::Sub: arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${RestApi}/*/GET/
+      FunctionName: !Ref DynamicPage
+      Principal: apigateway.amazonaws.com
+
+  StagingBasePathMapping:
+    DependsOn: RestApiProdStage
+    Type: AWS::ApiGateway::BasePathMapping
+    Properties:
+      BasePath: page
+      DomainName: !Sub "api.${EnvName}.tranmere-web.com"
+      RestApiId: !Ref RestApi
+      Stage: Prod
+
+Outputs:
+  Endpoint:
+    Description: "API Gateway endpoint URL the endpoint"
+    Value: !Sub "https://api.${EnvName}.tranmere-web.com/page/"

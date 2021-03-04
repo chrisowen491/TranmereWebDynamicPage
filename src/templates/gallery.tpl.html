@@ -2,7 +2,7 @@
 <body data-spy="scroll" data-target="#toc">
 
 <!-- header -->
-{{>homenav}}
+NAV_BAR_PLACEHOLDER
 <!-- / header -->
 
 <!-- hero -->
@@ -30,9 +30,14 @@
                 </figure>
                 {{/carousel}}
               </div>
-              {{#tags}}
-              <span class="badge badge-primary">{{.}}</span>
-              {{/tags}}
+              <div class="row">
+                <div class="col-12">
+                    {{#tags}}
+                    <span class="badge badge-primary"><a href="https://www.tranmere-web.com/page/tag/{{.}}" style="color:white">{{.}}</a></span>
+                    {{/tags}}
+                </div>
+                </row>
+            </div>
             </article>
             <!-- / content -->
 

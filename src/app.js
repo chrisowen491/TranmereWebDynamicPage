@@ -81,12 +81,25 @@ exports.handler = async function (event, context) {
                     ":player": decodeURIComponent(playerName),
                 }
             }).promise();
+        
+        var pl = playerSearch.Items.length == 1 ? playerSearch.Items[0] : null 
+
+        if(pl && pl.bio && pl.bio.picLink) {
+            pl.bio.pic = {
+               fields:{
+                   file:{
+                       url: pl.bio.picLink
+                   }
+               }
+           }
+        }
+
 
         view = {
             name: decodeURIComponent(playerName),
             debut: debutSearch.Items[0],
             seasons: summarySearch.Items,
-            player: playerSearch.Items.length == 1 ? playerSearch.Items[0] : null,
+            player: pl,
             random: Math.ceil(Math.random() * 100000),
             url: `/page/${pageName}/${classifier}`
         };

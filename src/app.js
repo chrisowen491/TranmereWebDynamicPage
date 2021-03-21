@@ -31,7 +31,7 @@ exports.handler = async function (event, context) {
     var view = {}
 
     if(pageName === "home") {
-        var content = await client.getEntries({'content_type': 'blogPost', order: '-fields.datePosted'});
+        var content = await client.getEntries({'content_type': 'blogPost', order: '-sys.createdAt'});
         view = {
             title: "Home",
             pageType:"WebPage",
@@ -84,11 +84,11 @@ exports.handler = async function (event, context) {
         
         var pl = playerSearch.Items.length == 1 ? playerSearch.Items[0] : null 
 
-        if(pl && pl.bio && pl.bio.picLink) {
-            pl.bio.pic = {
+        if(pl && pl.picLink) {
+            pl.pic = {
                fields:{
                    file:{
-                       url: pl.bio.picLink
+                       url: pl.picLink
                    }
                }
            }
@@ -110,8 +110,7 @@ exports.handler = async function (event, context) {
         view.description = "Player Profile for " + decodeURIComponent(playerName);
     } else if(pageName === "tag") {
         var tagId = decodeURIComponent(classifier);
-        var items = await client.getEntries({'fields.tags': tagId, 'content_type': 'blogPost', order: '-fields.datePosted'});
-        var blogs = await client.getEntries({'content_type': 'blogPost', order: '-fields.datePosted'});
+        var items = await client.getEntries({'fields.tags': tagId, 'content_type': 'blogPost', order: '-sys.createdAt'});
 
         view = {
             items: items.items,
@@ -119,14 +118,13 @@ exports.handler = async function (event, context) {
             title: "All blogs for " + tagId,
             description: "All blogs for " + tagId,
             random: Math.ceil(Math.random() * 100000),
-            blogs: blogs.items,
             url: `/page/${pageName}/${classifier}`,
         }
 
     } else if(pageName === "blog") {
         var blogId = decodeURIComponent(classifier);
         var content = await client.getEntry(blogId);
-        var blogs = await client.getEntries({'content_type': 'blogPost', order: '-fields.datePosted'});
+        var blogs = await client.getEntries({'content_type': 'blogPost', order: '-sys.createdAt'});
         let options = {
           renderNode: {
             'embedded-asset-block': (node) =>

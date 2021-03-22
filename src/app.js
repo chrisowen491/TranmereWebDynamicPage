@@ -147,7 +147,7 @@ exports.handler = async function (event, context) {
 
         if(view.galleryTag) {
             
-            var pictures = await client.getAssets({'metadata.tags.sys.id[in]': 'fanzine', order: 'sys.createdAt'});
+            var pictures = await client.getAssets({'metadata.tags.sys.id[in]': view.galleryTag, order: 'sys.createdAt'});
             for(var i=0; i < pictures.items.length; i++) {
                var image = {
                    imagePath: pictures.items[i].fields.file.url,

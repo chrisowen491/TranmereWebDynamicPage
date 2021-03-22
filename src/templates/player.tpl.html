@@ -17,12 +17,12 @@ NAV_BAR_PLACEHOLDER
                 </div>
             </div>
             <div class="col-5 pic">
-                {{#player.pic.fields.file.url}}
-                <img src="{{player.pic.fields.file.url}}" alt="Image" class="overlay-item-bottom">
-                {{/player.pic.fields.file.url}}
-                {{^player.pic.fields.file.url}}
+                {{#player.picLink}}
+                <img src="{{player.picLink}}" alt="Image" class="overlay-item-bottom">
+                {{/player.picLink}}
+                {{^player.picLink}}
                 <img src="/assets/shirts/blank.svg" alt="Image" class="overlay-item-bottom">
-                {{/player.pic.fields.file.url}}
+                {{/player.picLink}}
             </div>
         </div>
     </div>

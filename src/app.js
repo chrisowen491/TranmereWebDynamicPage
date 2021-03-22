@@ -5,7 +5,6 @@ const https = require('https');
 AWSXRay.captureHTTPsGlobal(http);
 AWSXRay.captureHTTPsGlobal(https);
 
-
 let dynamo = new AWS.DynamoDB.DocumentClient();
 AWSXRay.captureAWSClient(dynamo.service);
 
@@ -19,7 +18,6 @@ var contentfulSDK = require('@contentful/rich-text-html-renderer');
 const SUMMARY_TABLE_NAME = "TranmereWebPlayerSeasonSummaryTable";
 const APPS_TABLE_NAME = "TranmereWebAppsTable";
 const PLAYER_TABLE_NAME = "TranmereWebPlayerTable";
-const MEDIA_TABLE_NAME = "TranmereWebMediaSyncTable";
 const client = contentful.createClient({
   space: process.env.CF_SPACE,
   accessToken: process.env.CF_KEY
@@ -84,17 +82,6 @@ exports.handler = async function (event, context) {
         
         var pl = playerSearch.Items.length == 1 ? playerSearch.Items[0] : null 
 
-        if(pl && pl.picLink) {
-            pl.pic = {
-               fields:{
-                   file:{
-                       url: pl.picLink
-                   }
-               }
-           }
-        }
-
-
         view = {
             name: decodeURIComponent(playerName),
             debut: debutSearch.Items[0],
@@ -108,7 +95,9 @@ exports.handler = async function (event, context) {
         view.title = "Player Profile " + decodeURIComponent(playerName);
         view.pageType = "AboutPage";
         view.description = "Player Profile for " + decodeURIComponent(playerName);
+
     } else if(pageName === "tag") {
+        
         var tagId = decodeURIComponent(classifier);
         var items = await client.getEntries({'fields.tags': tagId, 'content_type': 'blogPost', order: '-sys.createdAt'});
 
@@ -120,8 +109,8 @@ exports.handler = async function (event, context) {
             random: Math.ceil(Math.random() * 100000),
             url: `/page/${pageName}/${classifier}`,
         }
-
     } else if(pageName === "blog") {
+        
         var blogId = decodeURIComponent(classifier);
         var content = await client.getEntry(blogId);
         var blogs = await client.getEntries({'content_type': 'blogPost', order: '-sys.createdAt'});
@@ -138,9 +127,11 @@ exports.handler = async function (event, context) {
         view.random =  Math.ceil(Math.random() * 100000);
         view.blogs = blogs.items;
         view.url =  `/page/${pageName}/${classifier}`;
+        view.carousel = [];
+
         if(view.gallery) {
-             view.carousel = [];
-             for(var i=0; i < view.gallery.length; i++) {
+             
+            for(var i=0; i < view.gallery.length; i++) {
 
                 var image = {
                     imagePath: view.gallery[i].fields.file.url,
@@ -148,12 +139,27 @@ exports.handler = async function (event, context) {
                     name: view.gallery[i].fields.title,
                     description: view.gallery[i].fields.description
                 }
-
                 view.carousel.push(image);
             }
             pageName = "gallery";
             delete view.gallery;
         }
+
+        if(view.galleryTag) {
+            
+            var pictures = await client.getAssets({'metadata.tags.sys.id[in]': 'fanzine', order: 'sys.createdAt'});
+            for(var i=0; i < pictures.items.length; i++) {
+               var image = {
+                   imagePath: pictures.items[i].fields.file.url,
+                   linkPath: pictures.items[i].fields.file.url,
+                   name: pictures.items[i].fields.title,
+                   description: pictures.items[i].fields.title
+               }
+               view.carousel.push(image);
+           }
+           pageName = "gallery";
+           delete view.gallery;
+       }
 
         if(view.blocks) {
             var blockContent = "";
@@ -174,18 +180,18 @@ exports.handler = async function (event, context) {
 
     var page = utils.buildPage(view, pages[pageName].template);
     return {
-     "isBase64Encoded": false,
-     "headers": {
-        "Content-Type": "text/html",
-        "Content-Security-Policy" : "upgrade-insecure-requests",
-        "Strict-Transport-Security" : "max-age=1000",
-        "X-Xss-Protection" : "1; mode=block",
-        "X-Frame-Options" : "DENY",
-        "X-Content-Type-Options" : "nosniff",
-        "Referrer-Policy" : "strict-origin-when-cross-origin",
-        "Cache-Control": "public"
-     },
-     "statusCode": 200,
-     "body": page
-     };
+        "isBase64Encoded": false,
+        "headers": {
+            "Content-Type": "text/html",
+            "Content-Security-Policy" : "upgrade-insecure-requests",
+            "Strict-Transport-Security" : "max-age=1000",
+            "X-Xss-Protection" : "1; mode=block",
+            "X-Frame-Options" : "DENY",
+            "X-Content-Type-Options" : "nosniff",
+            "Referrer-Policy" : "strict-origin-when-cross-origin",
+            "Cache-Control": "public"
+        },
+        "statusCode": 200,
+        "body": page
+    };
 };

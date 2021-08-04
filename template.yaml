@@ -86,10 +86,6 @@ Resources:
           EnvironmentName: !Ref EnvName
           CF_SPACE: !Ref 'CFSPACE'
           CF_KEY: !Ref 'CFKEY'
-          DD_LAMBDA_HANDLER: app.handler
-          DD_API_KEY: !Ref 'DDKEY'
-          DD_MERGE_XRAY_TRACES: true
-          DD_ENV: !Ref EnvName
       Policies:
         - DynamoDBCrudPolicy:
             TableName: TranmereWebAppsTable

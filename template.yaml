@@ -8,7 +8,7 @@ Transform:
       nodeLayerVersion: 59
       extensionLayerVersion: 9
       env: !Ref EnvName
-      service: !Ref DynamicPage
+      service: !Ref DynamicPage.name
       
 Description: >
   The tranmere web dynamic page stack

@@ -17,7 +17,10 @@ Parameters:
     Description: The contentful space
   CFKEY:
     Type: String
-    Description: The contentful key    
+    Description: The contentful key   
+  DDKEY:
+    Type: String
+    Description: The datadog key        
   S3BucketName:
     Type: String
   OpenAPIFile:
@@ -60,9 +63,9 @@ Resources:
   DynamicPage:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: src
-      Handler: app.handler
-      Runtime: nodejs12.x
+      CodeUri: node_modules/datadog-lambda-js/dist
+      Handler: handler.handler
+      Runtime: nodejs14.x
       DeploymentPreference:
         Type: !Ref Deployment
         Alarms:
@@ -74,6 +77,8 @@ Resources:
           EnvironmentName: !Ref EnvName
           CF_SPACE: !Ref 'CFSPACE'
           CF_KEY: !Ref 'CFKEY'
+          DD_LAMBDA_HANDLER: app.handler
+          DD_API_KEY: !Ref 'DDKEY'
       Policies:
         - DynamoDBCrudPolicy:
             TableName: TranmereWebAppsTable

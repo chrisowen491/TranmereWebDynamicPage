@@ -4,11 +4,8 @@ Transform:
   - Name: DatadogServerless
     Parameters:
       stackName: !Ref "AWS::StackName"
-      apiKey: !Ref 'DDKEY'
-      nodeLayerVersion: 59
-      extensionLayerVersion: 9
+      addLayers: false
       env: !Ref EnvName
-      service: "DynamicPage"
       
 Description: >
   The tranmere web dynamic page stack
@@ -91,6 +88,8 @@ Resources:
           DD_LAMBDA_HANDLER: app.handler
           DD_API_KEY: !Ref 'DDKEY'
           DD_MERGE_XRAY_TRACES: true
+          DD_SERVICE: !Ref DynamicPage
+          DD_ENV: !Ref EnvName
       Policies:
         - DynamoDBCrudPolicy:
             TableName: TranmereWebAppsTable

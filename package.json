@@ -16,6 +16,7 @@
     "axios": "^0.21.1",
     "contentful": "^8.1.8",
     "datadog-lambda-js": "^3.59.0",
+    "dd-trace": "^1.1.1",
     "mustache": "^4.0.1"
   },
   "devDependencies": {

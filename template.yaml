@@ -63,8 +63,8 @@ Resources:
   DynamicPage:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: node_modules/datadog-lambda-js/dist
-      Handler: handler.handler
+      CodeUri: src
+      Handler: app.handler
       Runtime: nodejs14.x
       DeploymentPreference:
         Type: !Ref Deployment

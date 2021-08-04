@@ -88,7 +88,7 @@ Resources:
           DD_LAMBDA_HANDLER: app.handler
           DD_API_KEY: !Ref 'DDKEY'
           DD_MERGE_XRAY_TRACES: true
-          DD_SERVICE: !Ref RestApi.Name
+          DD_SERVICE: DynamicPage
           DD_ENV: !Ref EnvName
       Policies:
         - DynamoDBCrudPolicy:

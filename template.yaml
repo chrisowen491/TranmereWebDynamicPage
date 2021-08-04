@@ -1,5 +1,13 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Transform: AWS::Serverless-2016-10-31
+Transform:
+  - AWS::Serverless-2016-10-31
+  - Name: DatadogServerless
+    Parameters:
+      stackName: !Ref "AWS::StackName"
+      apiKey: !Ref 'DDKEY'
+      nodeLayerVersion: 59
+      extensionLayerVersion: 9
+      
 Description: >
   The tranmere web dynamic page stack
 
@@ -79,6 +87,7 @@ Resources:
           CF_KEY: !Ref 'CFKEY'
           DD_LAMBDA_HANDLER: app.handler
           DD_API_KEY: !Ref 'DDKEY'
+          DD_MERGE_XRAY_TRACES: true
       Policies:
         - DynamoDBCrudPolicy:
             TableName: TranmereWebAppsTable

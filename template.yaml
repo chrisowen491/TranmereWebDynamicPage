@@ -6,7 +6,7 @@ Transform:
       stackName: !Ref "AWS::StackName"
       addLayers: false
       env: !Ref EnvName
-      service: DynamicPage
+      site: datadoghq.eu
       
 Description: >
   The tranmere web dynamic page stack
@@ -80,7 +80,7 @@ Resources:
         Alarms:
           - !Ref AliasErrorMetricGreaterThanZeroAlarm
           - !Ref LatestVersionErrorMetricGreaterThanZeroAlarm
-      Tracing: Active  
+      Tracing: PassThrough  
       Environment:
         Variables:
           EnvironmentName: !Ref EnvName

@@ -6,6 +6,7 @@ Transform:
       stackName: !Ref "AWS::StackName"
       addLayers: false
       env: !Ref EnvName
+      service: DynamicPage
       
 Description: >
   The tranmere web dynamic page stack
@@ -88,7 +89,6 @@ Resources:
           DD_LAMBDA_HANDLER: app.handler
           DD_API_KEY: !Ref 'DDKEY'
           DD_MERGE_XRAY_TRACES: true
-          DD_SERVICE: DynamicPage
           DD_ENV: !Ref EnvName
       Policies:
         - DynamoDBCrudPolicy:

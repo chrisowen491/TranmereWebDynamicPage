@@ -25,10 +25,7 @@ Parameters:
     Description: The contentful space
   CFKEY:
     Type: String
-    Description: The contentful key   
-  DDKEY:
-    Type: String
-    Description: The datadog key        
+    Description: The contentful key        
   S3BucketName:
     Type: String
   OpenAPIFile:

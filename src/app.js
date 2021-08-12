@@ -171,6 +171,7 @@ exports.handler = async function (event, context) {
         }
     }
 
+    var maxAge = pageName === "player" ? 86400 : 2592000;
     var page = utils.buildPage(view, pages[pageName].template);
     return {
         "isBase64Encoded": false,
@@ -182,7 +183,7 @@ exports.handler = async function (event, context) {
             "X-Frame-Options" : "DENY",
             "X-Content-Type-Options" : "nosniff",
             "Referrer-Policy" : "strict-origin-when-cross-origin",
-            "Cache-Control": "public"
+            "Cache-Control": "Cache-Control: public, max-age=" + maxAge
         },
         "statusCode": 200,
         "body": page

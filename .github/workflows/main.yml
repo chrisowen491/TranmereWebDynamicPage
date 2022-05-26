@@ -14,6 +14,5 @@ jobs:
     with:
       env: $ENV_NAME
       stack_name: DynamicPage-$ENV_NAME
-      repository: ${{ github.repository }}
       base_url: https://api.$ENV_NAME.tranmere-web.com/page/
     secrets: inherit

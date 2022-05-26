@@ -12,7 +12,7 @@ jobs:
   call-workflow:
     uses: chrisowen491/ReusableActions/.github/workflows/build_deploy_test_lambda_via_sam.yaml@main
     with:
-      env: $ENV_NAME
-      stack_name: DynamicPage-$ENV_NAME
-      base_url: https://api.$ENV_NAME.tranmere-web.com/page/
+      env: ci1
+      stack_name: DynamicPage-ci1
+      base_url: https://api.ci1.tranmere-web.com/page/
     secrets: inherit

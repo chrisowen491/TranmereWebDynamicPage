@@ -6,7 +6,9 @@ Transform:
       stackName: !Ref "AWS::StackName"
       addLayers: true
       env: !Ref EnvName
-      nodeLayerVersion: 59
+      nodeLayerVersion: 78
+      service: !Ref Service
+      version: !Ref Version
       
 Description: >
   The tranmere web dynamic page stack
@@ -31,6 +33,10 @@ Parameters:
   OpenAPIFile:
     Type: String
     Default: openapi.yaml
+  Version:
+    Type: String
+  Service:
+    Type: String
   EnvName:
     Type: String
     Default: sit1
@@ -83,13 +89,14 @@ Resources:
           EnvironmentName: !Ref EnvName
           CF_SPACE: !Ref 'CFSPACE'
           CF_KEY: !Ref 'CFKEY'
+
       Policies:
         - DynamoDBCrudPolicy:
             TableName: TranmereWebAppsTable
         - DynamoDBCrudPolicy:
             TableName: TranmereWebPlayerSeasonSummaryTable
         - DynamoDBCrudPolicy:
-            TableName: TranmereWebPlayerTable
+            TableName: TranmereWebPlayerTable         
         - DynamoDBCrudPolicy:
             TableName: TranmereWebMediaSyncTable
       Events:
